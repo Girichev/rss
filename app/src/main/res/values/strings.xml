@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">RSS Reader</string>
+    <string name="view_in_web">View in web</string>
+    <string name="search">Search</string>
+    <string name="refresh">Refresh</string>
+    <string name="delete">Delete</string>
+    <string name="delete_confirmation">Are you seriously looking to delete this news?</string>
+    <string name="delete_error">Damn, an error has occurred, shall we repeat?</string>
+</resources>
