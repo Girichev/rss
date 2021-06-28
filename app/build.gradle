@@ -50,6 +50,15 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def project = "RSS_Reader"
+            def buildType = variant.buildType.name
+            def apkFilename = "${project}_${buildType}_v${variant.versionName}_c${variant.versionCode}.apk"
+            output.outputFileName = new File(apkFilename)
+        }
+    }
 }
 
 dependencies {
