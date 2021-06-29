@@ -6,7 +6,6 @@ import androidx.lifecycle.Transformations
 import com.sample.rss.room.AppDB
 import com.sample.rss.room.entity.RssItemEntity
 import com.sample.rss.room.view.RssItemView
-import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 
 class DetailsRepository @Inject constructor(private val appDB: AppDB) {
@@ -15,24 +14,20 @@ class DetailsRepository @Inject constructor(private val appDB: AppDB) {
         MutableLiveData()
     }
 
-    val item: LiveData<RssItemView> by lazy {
-        Transformations.switchMap(guid) { lnk -> appDB.itemDao.getOneByGuidLD(lnk) }
+    val rssItem: LiveData<RssItemView> by lazy {
+        Transformations.switchMap(guid) { id -> appDB.itemDao.getOneByGuidLiveData(id) }
     }
 
-    fun setLink(guid: String) {
+    fun setGuid(guid: String) {
         this.guid.postValue(guid)
     }
 
-    fun setViewed(): Single<Int>? {
-        return item.value?.let {
-            appDB.itemDao.updateAsync(it.toRoomEntity().apply { isViewed = true })
-        }
+    suspend fun markAsViewed(item: RssItemView): Boolean {
+        return appDB.itemDao.update(item.toRoomEntity().apply { isViewed = true }) > 0
     }
 
-    fun markAsDeleted(): Single<Int>? {
-        return item.value?.let {
-            appDB.itemDao.updateAsync(it.toRoomEntity().apply { isBlocked = true })
-        }
+    suspend fun markAsDeleted(item: RssItemView): Boolean {
+        return appDB.itemDao.update(item.toRoomEntity().apply { isBlocked = true }) > 0
     }
 }
 

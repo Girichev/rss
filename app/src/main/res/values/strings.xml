@@ -4,6 +4,7 @@
     <string name="search">Search</string>
     <string name="refresh">Refresh</string>
     <string name="delete">Delete</string>
+    <string name="error">Error</string>
     <string name="delete_confirmation">Are you seriously looking to delete this news?</string>
     <string name="delete_error">Damn, an error has occurred, shall we repeat?</string>
 </resources>
