@@ -8,8 +8,13 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.sample.rss.R
+import com.sample.rss.common.ActionResult
+import com.sample.rss.common.ActionResultDone
+import com.sample.rss.common.ActionResultFailed
+import com.sample.rss.common.ActionResultStarted
 import com.sample.rss.common.base.BaseFragment
 import com.sample.rss.common.base.nav
+import com.sample.rss.common.ext.toast
 import com.sample.rss.databinding.FeedFragmentBinding
 import com.sample.rss.room.view.RssItemView
 import com.sample.rss.support.recyclerview.RecyclerItemClickListener
@@ -38,8 +43,15 @@ class FeedFragment : BaseFragment<FeedFragmentBinding>(),
         feedAdapter.swapData(data)
     }
 
-    private val loadingObserver = Observer<Boolean> { isLoading ->
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+    private val loadingObserver = Observer<ActionResult> { result ->
+        when(result) {
+            is ActionResultStarted -> binding.progressBar.visibility = View.VISIBLE
+            is ActionResultDone -> binding.progressBar.visibility = View.GONE
+            is ActionResultFailed -> {
+                binding.progressBar.visibility = View.GONE
+                activity?.toast(result.throwable.localizedMessage)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

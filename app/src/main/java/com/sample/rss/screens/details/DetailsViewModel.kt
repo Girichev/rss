@@ -3,9 +3,9 @@ package com.sample.rss.screens.details
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.sample.rss.common.Action
-import com.sample.rss.common.ActionDone
-import com.sample.rss.common.ActionFailed
+import com.sample.rss.common.ActionResult
+import com.sample.rss.common.ActionResultDone
+import com.sample.rss.common.ActionResultFailed
 import com.sample.rss.common.base.BaseViewModel
 import com.sample.rss.coroutines.coundown.CountDownUseCase
 import com.sample.rss.room.view.RssItemView
@@ -21,12 +21,12 @@ class DetailsViewModel @Inject constructor(private val repository: DetailsReposi
 
     val rssItem: LiveData<RssItemView> by lazy { repository.rssItem }
 
-    val onDeleted: MutableLiveData<Action> by lazy {
-        MutableLiveData<Action>()
+    val onDeleted: MutableLiveData<ActionResult> by lazy {
+        MutableLiveData<ActionResult>()
     }
 
-    val onViewed: MutableLiveData<Action> by lazy {
-        MutableLiveData<Action>()
+    val onViewed: MutableLiveData<ActionResult> by lazy {
+        MutableLiveData<ActionResult>()
     }
 
     fun setGuid(guid: String) {
@@ -42,26 +42,26 @@ class DetailsViewModel @Inject constructor(private val repository: DetailsReposi
             onViewed.postValue(
                 try {
                     repository.markAsViewed(item)
-                    ActionDone()
+                    ActionResultDone
                 } catch (ex: Throwable) {
-                    ActionFailed(ex)
+                    ActionResultFailed(ex)
                 }
             )
         }
-    } ?: onViewed.postValue(ActionFailed(EmptyRssItem()))
+    } ?: onViewed.postValue(ActionResultFailed(EmptyRssItem()))
 
     fun deleteNews() = rssItem.value?.let { item ->
         viewModelScope.launch {
             onDeleted.postValue(
                 try {
                     repository.markAsDeleted(item)
-                    ActionDone()
+                    ActionResultDone
                 } catch (ex: Throwable) {
-                    ActionFailed(ex)
+                    ActionResultFailed(ex)
                 }
             )
         }
-    } ?: onDeleted.postValue(ActionFailed(EmptyRssItem()))
+    } ?: onDeleted.postValue(ActionResultFailed(EmptyRssItem()))
 }
 
 class EmptyRssItem : Throwable("Empty RSS Item")

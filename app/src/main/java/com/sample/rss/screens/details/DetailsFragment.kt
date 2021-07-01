@@ -7,9 +7,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.sample.rss.R
-import com.sample.rss.common.Action
-import com.sample.rss.common.ActionDone
-import com.sample.rss.common.ActionFailed
+import com.sample.rss.common.ActionResult
+import com.sample.rss.common.ActionResultDone
+import com.sample.rss.common.ActionResultFailed
 import com.sample.rss.common.base.BaseFragment
 import com.sample.rss.common.base.nav
 import com.sample.rss.common.ext.openUrl
@@ -57,19 +57,19 @@ class DetailsFragment : BaseFragment<DetailsFragmentBinding>() {
         if(!item.isViewed) { viewModel.startViewedCountDown() }
     }
 
-    private val onDeletedObserver = Observer<Action> { result ->
+    private val onDeletedObserver = Observer<ActionResult> { result ->
         when (result) {
-            is ActionDone -> nav.popBackStack()
-            is ActionFailed -> showDeleteErrorAlert(result.throwable)
+            is ActionResultDone -> nav.popBackStack()
+            is ActionResultFailed -> showDeleteErrorAlert(result.throwable)
         }
     }
 
-    private val onViewedObserver = Observer<Action> { result ->
+    private val onViewedObserver = Observer<ActionResult> { result ->
         when (result) {
-            is ActionDone -> {
+            is ActionResultDone -> {
                 // @TODO news marked as viewed
             }
-            is ActionFailed -> showDeleteErrorAlert(result.throwable)
+            is ActionResultFailed -> showDeleteErrorAlert(result.throwable)
         }
     }
 
