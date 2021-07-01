@@ -9,5 +9,5 @@ class CountDown {
         .onEach { delay(1_000L) }
         .onStart { emit(totalSec) }
         .conflate()
-        .transform { remainingMillis ->  emit(TimerState(totalSec, remainingMillis)) }
+        .transform { remainingSeconds ->  emit(TimerState(totalSec, remainingSeconds)) }
 }

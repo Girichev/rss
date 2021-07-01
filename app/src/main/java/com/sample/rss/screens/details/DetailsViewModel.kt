@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.sample.rss.common.ActionResult
 import com.sample.rss.common.ActionResultDone
 import com.sample.rss.common.ActionResultFailed
+import com.sample.rss.common.ActionResultStarted
 import com.sample.rss.common.base.BaseViewModel
 import com.sample.rss.coroutines.coundown.CountDownUseCase
 import com.sample.rss.room.view.RssItemView
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,7 +40,8 @@ class DetailsViewModel @Inject constructor(private val repository: DetailsReposi
     }
 
     private fun setViewed() = rssItem.value?.let { item ->
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            onViewed.postValue(ActionResultStarted)
             onViewed.postValue(
                 try {
                     repository.markAsViewed(item)
@@ -51,7 +54,8 @@ class DetailsViewModel @Inject constructor(private val repository: DetailsReposi
     } ?: onViewed.postValue(ActionResultFailed(EmptyRssItem()))
 
     fun deleteNews() = rssItem.value?.let { item ->
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            onDeleted.postValue(ActionResultStarted)
             onDeleted.postValue(
                 try {
                     repository.markAsDeleted(item)

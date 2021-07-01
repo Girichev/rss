@@ -10,6 +10,7 @@ import com.sample.rss.R
 import com.sample.rss.common.ActionResult
 import com.sample.rss.common.ActionResultDone
 import com.sample.rss.common.ActionResultFailed
+import com.sample.rss.common.ActionResultStarted
 import com.sample.rss.common.base.BaseFragment
 import com.sample.rss.common.base.nav
 import com.sample.rss.common.ext.openUrl
@@ -54,11 +55,16 @@ class DetailsFragment : BaseFragment<DetailsFragmentBinding>() {
 
     private val itemObserver = Observer<RssItemView> { item ->
         binding.item = item
-        if(!item.isViewed) { viewModel.startViewedCountDown() }
+        if (!item.isViewed) {
+            viewModel.startViewedCountDown()
+        }
     }
 
     private val onDeletedObserver = Observer<ActionResult> { result ->
         when (result) {
+            is ActionResultStarted -> {
+                // perform actions if necessary
+            }
             is ActionResultDone -> nav.popBackStack()
             is ActionResultFailed -> showDeleteErrorAlert(result.throwable)
         }
@@ -66,8 +72,11 @@ class DetailsFragment : BaseFragment<DetailsFragmentBinding>() {
 
     private val onViewedObserver = Observer<ActionResult> { result ->
         when (result) {
+            is ActionResultStarted -> {
+                // perform actions if necessary
+            }
             is ActionResultDone -> {
-                // @TODO news marked as viewed
+                // perform actions if necessary
             }
             is ActionResultFailed -> showDeleteErrorAlert(result.throwable)
         }

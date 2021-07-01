@@ -1,6 +1,7 @@
 package com.sample.rss.coroutines.coundown
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,13 +25,12 @@ class CountDownUseCase(private val timerScope: CoroutineScope) {
 
     fun startTimer(totalSec: Long, onComplete: () -> Unit) {
         stopTimer()
-        job = timerScope.launch {
+        job = timerScope.launch(Dispatchers.IO) {
             countDown.init(totalSec)
                 .onCompletion {
                     _timerStateFlow.emit(TimerState(totalSec))
                     onComplete.invoke()
-                }
-                .collect { _timerStateFlow.emit(it) }
+                }.collect { _timerStateFlow.emit(it) }
         }
     }
 }
