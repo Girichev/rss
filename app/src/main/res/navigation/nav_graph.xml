@@ -24,7 +24,7 @@
         android:label="Details"
         tools:layout="@layout/details_fragment">
         <argument
-            android:name="link"
+            android:name="guid"
             app:argType="string" />
     </fragment>
 </navigation>

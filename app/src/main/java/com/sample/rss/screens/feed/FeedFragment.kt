@@ -8,15 +8,19 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.sample.rss.R
+import com.sample.rss.common.ActionResult
+import com.sample.rss.common.ActionResultDone
+import com.sample.rss.common.ActionResultFailed
+import com.sample.rss.common.ActionResultStarted
 import com.sample.rss.common.base.BaseFragment
 import com.sample.rss.common.base.nav
+import com.sample.rss.common.ext.toast
 import com.sample.rss.databinding.FeedFragmentBinding
 import com.sample.rss.room.view.RssItemView
 import com.sample.rss.support.recyclerview.RecyclerItemClickListener
 import com.sample.rss.support.recyclerview.addOnItemClickListener
 import com.sample.rss.support.recyclerview.decorator.EdgeDecoration
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 
 @AndroidEntryPoint
@@ -39,14 +43,21 @@ class FeedFragment : BaseFragment<FeedFragmentBinding>(),
         feedAdapter.swapData(data)
     }
 
-    private val loadingObserver = Observer<Boolean> { isLoading ->
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+    private val loadingObserver = Observer<ActionResult> { result ->
+        when(result) {
+            is ActionResultStarted -> binding.progressBar.visibility = View.VISIBLE
+            is ActionResultDone -> binding.progressBar.visibility = View.GONE
+            is ActionResultFailed -> {
+                binding.progressBar.visibility = View.GONE
+                activity?.toast(result.throwable.localizedMessage)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.loadingStatus.observe(viewLifecycleOwner, loadingObserver)
-        viewModel.items.observe(viewLifecycleOwner, listObserver)
+        viewModel.feed.observe(viewLifecycleOwner, listObserver)
         binding.rvItems.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             addItemDecoration(EdgeDecoration(requireActivity(), R.dimen.rv_spacing_large))
@@ -63,7 +74,6 @@ class FeedFragment : BaseFragment<FeedFragmentBinding>(),
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW or MenuItem.SHOW_AS_ACTION_IF_ROOM)
         sv.setOnQueryTextListener(this)
         sv.setIconifiedByDefault(false)
-        sv.setOnSearchClickListener {}
         item.actionView = sv
         super.onCreateOptionsMenu(menu, inflater)
     }
@@ -75,17 +85,16 @@ class FeedFragment : BaseFragment<FeedFragmentBinding>(),
 
     override fun onItemClick(view: View, position: Int) {
         feedAdapter.getItem(position)?.let {
-            nav.navigate(FeedFragmentDirections.actionFeedFragmentToDetailsFragment(it.link))
+            nav.navigate(FeedFragmentDirections.actionFeedFragmentToDetailsFragment(it.guid))
         }
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        Timber.d("onQueryTextSubmit $query")
         return true
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        viewModel.setSearchMask(newText)
+        viewModel.search(newText)
         return true
     }
 }
